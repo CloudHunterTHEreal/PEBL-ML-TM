@@ -27,12 +27,17 @@ class peblMl(object):
         X_2 = self.vectorizerContent_2.fit_transform(content)
         Xcat = self.vectorizerCategory.fit_transform(category)
         xx = X.toarray().transpose()
+        self.doc_lengths=X.toarray()
         self.selected_feature_names_Cont = np.asarray(self.vectorizerContent.get_feature_names())
         self.selected_feature_names_Cat = np.asarray(self.vectorizerCategory.get_feature_names())
         self.wordTopic = X.toarray().transpose() @ Xcat
-        self.ProbTopicWord = self.wordTopic.transpose() / (np.sum(self.wordTopic, axis=1) + 0.01)
+        ProbTopicWord = self.wordTopic.transpose() / (np.sum(self.wordTopic, axis=1) + 0.01)
+        ProbTopicWord = ProbTopicWord.transpose() / ProbTopicWord.transpose().sum(axis=1)[:, None]
+        self.ProbTopicWord = ProbTopicWord.transpose()
         ProbTopicDoc = X @ self.ProbTopicWord.transpose()
-        self.ProbTopicDoc = ProbTopicDoc.transpose() / (np.sum(ProbTopicDoc, axis=1) + 0.01)
+        ProbTopicDoc = ProbTopicDoc.transpose() / (np.sum(ProbTopicDoc, axis=1) + 0.01)
+        ProbTopicDoc = ProbTopicDoc.transpose() / ProbTopicDoc.transpose().sum(axis=1)[:, None]
+        self.ProbTopicDoc = ProbTopicDoc
         return self
 
     def predict(self, query, newClassName='newTopic'):
